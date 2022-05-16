@@ -9,18 +9,17 @@
 unsigned char is_pressed(int r, int c)
 {
 	// set all 8 GPIOs to N/C
-	DDRA = 0;
-	PORTA = 0;
+	DDRC = 0;
+	PORTC = 0;
 
-	c = 3 - c;
-	r = 7 - r;
+	c += 4;
 	// set r to "0"
-	SET_BIT(DDRA, r);
+	SET_BIT(DDRC, r);
 
 	// set c to "w1"
-	SET_BIT(PORTA, c);
+	SET_BIT(PORTC, c);
 	avr_wait(1);
-	return GET_BIT(PINA, c) == 0;
+	return GET_BIT(PINC, c) == 0;
 }
 
 unsigned char get_key(void)

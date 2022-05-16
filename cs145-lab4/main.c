@@ -11,7 +11,7 @@
 #define MIN 2
 #define AVG 3
 
-unsigned char state = 0;
+unsigned char state = 8;
 
 float Data[4] = {0.12, 0.23, 0.34, 0.45};
 
@@ -26,7 +26,7 @@ void display(void)
 	char buf[LCDSIZE];
 
 	lcd_pos(0, 0);
-	sprintf(buf, "iV:%1.2f MA:%1.2f", Data[INS], Data[MAX]);
+	sprintf(buf, "%d:%1.2f MA:%1.2f", state, Data[INS], Data[MAX]);
 	lcd_puts2(buf);
 
 	lcd_pos(1, 0);
@@ -37,8 +37,9 @@ void display(void)
 int short get_sample()
 {
 	int result;
-	ADMUX = 0b010
-	while (ADCSRA & (1 << ADSC))
+	ADMUX = 0b01000000;
+	ADCSRA = 0b11000000;
+	while (GET_BIT(ADCSRA, 6))
 		; // wait for a change in the voltage
 	result = ADC;
 	return result;
@@ -56,7 +57,7 @@ void hold_avg(void)
 	{
 		avr_wait(500);
 
-		if (state = get_key() == 2)
+		if ((state = get_key()) == 8)
 			break;
 		Data[INS] = (get_sample() / 1023.0) * 5;
 		if (Data[MAX] < Data[INS])
@@ -82,14 +83,14 @@ int main(void)
 			state = k;
 		switch (state)
 		{
-		case 1:
+		case 4:
 			reset();
-			state = 2;
+			state = 8;
 			break;
 		case 3:
 			hold_avg();
 			break;
-		case 2:
+		case 8:
 			normal();
 		}
 		display();
